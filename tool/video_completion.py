@@ -247,10 +247,10 @@ def edge_completion(args, EdgeGenerator, corrFlow, flow_mask, mode):
     for i in range(nFrame):
         flow_mask_img = flow_mask[:, :, i] if mode == 'forward' else flow_mask[:, :, i + 1]
 
-        flow_img_gray = (corrFlow[:, :, 0, i] ** 2 + corrFlow[:, :, 1, i] ** 2) ** 0.5
-        flow_img_gray = flow_img_gray / flow_img_gray.max()
+        flow_img_gray = (corrFlow[:, :, 0, i] ** 2 + corrFlow[:, :, 1, i] ** 2) ** 0.5  # Flow Magnitude
+        flow_img_gray = flow_img_gray / flow_img_gray.max()  # Normalise to have everything < 1
 
-        edge_corr = canny(flow_img_gray, sigma=2, mask=(1 - flow_mask_img).astype(np.bool))
+        edge_corr = canny(flow_img_gray, sigma=2, mask=(1 - flow_mask_img).astype(np.bool))  # Skimage function
         edge_completed = infer(args, EdgeGenerator, torch.device('cuda:0'), flow_img_gray, edge_corr, flow_mask_img)
         Edge = np.concatenate((Edge, edge_completed[..., None]), axis=-1)
     return Edge
